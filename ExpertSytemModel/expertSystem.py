@@ -146,7 +146,7 @@ class ExpertSystem:
             self.actualProtocols.append(dictProtocol['Амария'])
             self.actualProtocols.append(dictProtocol['Модсли'])
 
-        if 'Модсли' not in [protocol.name for protocol in self.actualProtocols] or 'Идиллия' not in [protocol.name for protocol in self.actualProtocols]:
+        if 'Модсли' not in [protocol.name for protocol in self.actualProtocols] and 'Идиллия' not in [protocol.name for protocol in self.actualProtocols]:
             self.actualProtocols.append(dictProtocol['Идиллия'])
 
         self.displayedProtocols = self.actualProtocols.copy()
@@ -167,11 +167,16 @@ class ExpertSystem:
             if self.actualProtocols[-1].name == 'Модсли':
                 self.displayedProtocols[-1] = dictProtocol['Идиллия']
 
-            for index in range(len(self.actualProtocols)):
+            index = 0
+            while index < len(self.actualProtocols):
                 if index < len(self.displayedProtocols):
+                    print([protocol.name for protocol in self.displayedProtocols])
                     if self.displayedProtocols[index].name in ['Амария', 'Селена', 'Аид', 'Красная Королева']:
                         self.displayedProtocols = self.displayedProtocols[0:index] + self.displayedProtocols[index+1:]
                         index -= 1
+                else:
+                    break
+                index += 1
 
         return json.dumps(self.dict())
 
