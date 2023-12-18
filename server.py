@@ -2,7 +2,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from ExpertSytemModel.expertSystem import ExpertSystem
 import json
 
-
 class ExpertSystemServer(ExpertSystem):
     expertSystem = None
 

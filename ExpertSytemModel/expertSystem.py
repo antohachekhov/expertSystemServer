@@ -126,28 +126,28 @@ class ExpertSystem:
                 elif 'A5' in self.patient.behavior.value or 'A0' in self.patient.behavior.value:
                     self.actualProtocols.append(dictProtocol['Катарина'])
 
-            if self.patient.project.name in ["Кордицепс", "Таити", "Сороконожка"]:
-                if type(self.patient.project) in [ProjectEuclid, ProjectKeterBeta]:
-                    if type(self.patient) in [PatientsSatisfactory, PatientsNegative] and ('A4' in self.patient.behavior.value or 'A5' in self.patient.behavior.value):
-                        self.actualProtocols.append(dictProtocol['Корона'])
+        if self.patient.project.name in ["Кордицепс", "Таити", "Сороконожка"]:
+            if type(self.patient.project) in [ProjectEuclid, ProjectKeterBeta]:
+                if type(self.patient) in [PatientsSatisfactory, PatientsNegative] and ('A4' in self.patient.behavior.value or 'A5' in self.patient.behavior.value):
+                    self.actualProtocols.append(dictProtocol['Корона'])
 
-            if self.patient.project.name == 'Сороконожка' and 'Тиран' in [protocol.name for protocol in self.actualProtocols]:
-                self.actualProtocols.append(dictProtocol['Селена'])
+        if self.patient.project.name == 'Сороконожка' and 'Тиран' in [protocol.name for protocol in self.actualProtocols]:
+            self.actualProtocols.append(dictProtocol['Селена'])
 
-            if self.patient.project.name == 'Зимний солдат' and ('Тиран' in [protocol.name for protocol in self.actualProtocols] or 'Катарина' in [protocol.name for protocol in self.actualProtocols]):
-                self.actualProtocols.append(dictProtocol['Селена'])
+        if self.patient.project.name == 'Зимний солдат' and ('Тиран' in [protocol.name for protocol in self.actualProtocols] or 'Катарина' in [protocol.name for protocol in self.actualProtocols]):
+            self.actualProtocols.append(dictProtocol['Селена'])
 
-            if (self.patient.project.name == 'Кордицепс' or self.patient.project.name == 'Таити') and ('Катарина' in [protocol.name for protocol in self.actualProtocols]):
-                self.actualProtocols.append(dictProtocol['Селена'])
+        if (self.patient.project.name == 'Кордицепс' or self.patient.project.name == 'Таити') and ('Катарина' in [protocol.name for protocol in self.actualProtocols]):
+            self.actualProtocols.append(dictProtocol['Селена'])
 
-            if (self.patient.project.name == 'Кордицепс' or self.patient.project.name == 'Таити') and ('Тиран' in [protocol.name for protocol in self.actualProtocols]):
-                self.actualProtocols.append(dictProtocol['Аид'])
-                self.actualProtocols.append(dictProtocol['Красная Королева'])
-                self.actualProtocols.append(dictProtocol['Амария'])
-                self.actualProtocols.append(dictProtocol['Модсли'])
+        if (self.patient.project.name == 'Кордицепс' or self.patient.project.name == 'Таити') and ('Тиран' in [protocol.name for protocol in self.actualProtocols]):
+            self.actualProtocols.append(dictProtocol['Аид'])
+            self.actualProtocols.append(dictProtocol['Красная Королева'])
+            self.actualProtocols.append(dictProtocol['Амария'])
+            self.actualProtocols.append(dictProtocol['Модсли'])
 
-            if 'Модсли' not in [protocol.name for protocol in self.actualProtocols] and 'Идиллия' not in [protocol.name for protocol in self.actualProtocols]:
-                self.actualProtocols.append(dictProtocol['Идиллия'])
+        if 'Модсли' not in [protocol.name for protocol in self.actualProtocols] or 'Идиллия' not in [protocol.name for protocol in self.actualProtocols]:
+            self.actualProtocols.append(dictProtocol['Идиллия'])
 
         self.displayedProtocols = self.actualProtocols.copy()
 
