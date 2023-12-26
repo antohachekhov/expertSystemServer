@@ -6,7 +6,9 @@ from ExpertSytemModel.patients import Patient
 from ExpertSytemModel.condition import Condition, ConditionGreen, ConditionOrange, ConditionRed, ConditionWhite
 from ExpertSytemModel.behavior import Behavior
 from ExpertSytemModel.protocols import Protocol, dictProtocol
-from ExpertSytemModel.users import dictUsers, UserResearchAssociate, UserResponseTeam, UserSecurityService, UserSupportStaff, UserThaumiel
+from ExpertSytemModel.users import dictUsers, UserResearchAssociate, UserResponseTeam, UserSecurityService, \
+    UserSupportStaff, UserThaumiel
+from ExpertSytemModel.fuzzyRules import FuzzyLogic
 
 
 class ExpertSystem:
@@ -28,11 +30,17 @@ class ExpertSystem:
             'user': self._setUser
         }
 
+        self.fuzzyLogic = FuzzyLogic({'greens': [[0, 1], [0, 1, 6], [1, 7]],
+                                      'orange': [[0, 1.5], [0, 1.5, 3], [1.5, 3]],
+                                      'reds': [[0, 1], [0, 1, 11], [1, 11]]})
+
     def dict(self):
         return {
             "currentUser": 'None' if self.currentUser is None else self.currentUser.dict(),
-            "actualProtocols": 'None' if len(self.actualProtocols) == 0 else [protocol.dict() for protocol in self.actualProtocols],
-            "displayedProtocols": 'None' if len(self.displayedProtocols) == 0 else [protocol.dict() for protocol in self.displayedProtocols],
+            "actualProtocols": 'None' if len(self.actualProtocols) == 0 else [protocol.dict() for protocol in
+                                                                              self.actualProtocols],
+            "displayedProtocols": 'None' if len(self.displayedProtocols) == 0 else [protocol.dict() for protocol in
+                                                                                    self.displayedProtocols],
             "patient": 'None' if self.patient is None else self.patient.dict()
         }
 
@@ -75,9 +83,11 @@ class ExpertSystem:
                 if 'A' in self.patient.behavior.value.split('код ')[1]:
                     raise Exception('400 Пациент не агресивничает, когда находится в коме!!!')
 
-            if (self.patient.behavior.value == 'Положительно спокоен (код C1)' or self.patient.behavior.value == "Апатичен (код C2)") and  countRed == 0:
-                    self.actualProtocols.append(dictProtocol['Идиллия'])
-            elif countRed > 0 and (self.patient.behavior.value == 'Положительно спокоен (код C1)' or self.patient.behavior.value == "Апатичен (код C2)" or \
+            if (
+                    self.patient.behavior.value == 'Положительно спокоен (код C1)' or self.patient.behavior.value == "Апатичен (код C2)") and countRed == 0:
+                self.actualProtocols.append(dictProtocol['Идиллия'])
+            elif countRed > 0 and (
+                    self.patient.behavior.value == 'Положительно спокоен (код C1)' or self.patient.behavior.value == "Апатичен (код C2)" or \
                     self.patient.behavior.value == 'Пассивная агрессия (код A1)' or self.patient.behavior.value == "Угрозы в адрес сотрудников или других пациентов (код A2)"):
                 self.actualProtocols.append(dictProtocol['Спок-Нок'])
             elif isActive and self.patient.behavior.value == 'Агрессия, направленная на предметы (код A3)' or \
@@ -88,10 +98,12 @@ class ExpertSystem:
                 self.actualProtocols.append(dictProtocol['Катарина'])
 
         elif type(self.patient.project) is ProjectEuclid:
-            if type(self.patient) is PatientsPositive and (self.patient.behavior.value == 'Положительно спокоен (код C1)' or self.patient.behavior.value == "Апатичен (код C2)" or \
+            if type(self.patient) is PatientsPositive and (
+                    self.patient.behavior.value == 'Положительно спокоен (код C1)' or self.patient.behavior.value == "Апатичен (код C2)" or \
                     self.patient.behavior.value == 'Пассивная агрессия (код A1)'):
                 self.actualProtocols.append(dictProtocol['Идиллия'])
-            elif type(self.patient) in [PatientsPositive, PatientsSatisfactory] and self.patient.behavior.value == 'Угрозы в адрес сотрудников или других пациентов (код A2)':
+            elif type(self.patient) in [PatientsPositive,
+                                        PatientsSatisfactory] and self.patient.behavior.value == 'Угрозы в адрес сотрудников или других пациентов (код A2)':
                 self.actualProtocols.append(dictProtocol['Спок-Нок'])
             elif self.patient.behavior.value == 'Агрессия, направленная на предметы (код A3)':
                 self.actualProtocols.append(dictProtocol['Эйрена'])
@@ -101,10 +113,12 @@ class ExpertSystem:
                 self.actualProtocols.append(dictProtocol['Тиран'])
 
         elif type(self.patient.project) in [ProjectKeterAlfa, ProjectKeterBeta, ProjectKeterOmega]:
-            if type(self.patient) in [PatientsPositive] and (self.patient.behavior.value == 'Положительно спокоен (код C1)' or self.patient.behavior.value == "Апатичен (код C2)" or \
-                                                             self.patient.behavior.value == 'Пассивная агрессия (код A1)'):
+            if type(self.patient) in [PatientsPositive] and (
+                    self.patient.behavior.value == 'Положительно спокоен (код C1)' or self.patient.behavior.value == "Апатичен (код C2)" or \
+                    self.patient.behavior.value == 'Пассивная агрессия (код A1)'):
                 self.actualProtocols.append(dictProtocol['Идиллия'])
-            elif type(self.patient) in [PatientsPositive, PatientsSatisfactory] and self.patient.behavior.value == 'Угрозы в адрес сотрудников или других пациентов (код A2)':
+            elif type(self.patient) in [PatientsPositive,
+                                        PatientsSatisfactory] and self.patient.behavior.value == 'Угрозы в адрес сотрудников или других пациентов (код A2)':
                 self.actualProtocols.append(dictProtocol['Спок-Нок'])
             elif type(self.patient.project) is ProjectKeterAlfa:
                 if 'A3' in self.patient.behavior.value:
@@ -128,25 +142,34 @@ class ExpertSystem:
 
         if self.patient.project.name in ["Кордицепс", "Таити", "Сороконожка"]:
             if type(self.patient.project) in [ProjectEuclid, ProjectKeterBeta]:
-                if type(self.patient) in [PatientsSatisfactory, PatientsNegative] and ('A4' in self.patient.behavior.value or 'A5' in self.patient.behavior.value):
+                if type(self.patient) in [PatientsSatisfactory, PatientsNegative] and (
+                        'A4' in self.patient.behavior.value or 'A5' in self.patient.behavior.value):
                     self.actualProtocols.append(dictProtocol['Корона'])
 
-        if self.patient.project.name == 'Сороконожка' and 'Тиран' in [protocol.name for protocol in self.actualProtocols]:
+        if self.patient.project.name == 'Сороконожка' and 'Тиран' in [protocol.name for protocol in
+                                                                      self.actualProtocols]:
             self.actualProtocols.append(dictProtocol['Селена'])
 
-        if self.patient.project.name == 'Зимний солдат' and ('Тиран' in [protocol.name for protocol in self.actualProtocols] or 'Катарина' in [protocol.name for protocol in self.actualProtocols]):
+        if self.patient.project.name == 'Зимний солдат' and (
+                'Тиран' in [protocol.name for protocol in self.actualProtocols] or 'Катарина' in [protocol.name for
+                                                                                                  protocol in
+                                                                                                  self.actualProtocols]):
             self.actualProtocols.append(dictProtocol['Селена'])
 
-        if (self.patient.project.name == 'Кордицепс' or self.patient.project.name == 'Таити') and ('Катарина' in [protocol.name for protocol in self.actualProtocols]):
+        if (self.patient.project.name == 'Кордицепс' or self.patient.project.name == 'Таити') and (
+                'Катарина' in [protocol.name for protocol in self.actualProtocols]):
             self.actualProtocols.append(dictProtocol['Селена'])
 
-        if (self.patient.project.name == 'Кордицепс' or self.patient.project.name == 'Таити') and ('Тиран' in [protocol.name for protocol in self.actualProtocols]):
+        if (self.patient.project.name == 'Кордицепс' or self.patient.project.name == 'Таити') and (
+                'Тиран' in [protocol.name for protocol in self.actualProtocols]):
             self.actualProtocols.append(dictProtocol['Аид'])
             self.actualProtocols.append(dictProtocol['Красная Королева'])
             self.actualProtocols.append(dictProtocol['Амария'])
             self.actualProtocols.append(dictProtocol['Модсли'])
 
-        if 'Модсли' not in [protocol.name for protocol in self.actualProtocols] and 'Идиллия' not in [protocol.name for protocol in self.actualProtocols]:
+        if 'Модсли' not in [protocol.name for protocol in self.actualProtocols] and 'Идиллия' not in [protocol.name for
+                                                                                                      protocol in
+                                                                                                      self.actualProtocols]:
             self.actualProtocols.append(dictProtocol['Идиллия'])
 
         self.displayedProtocols = self.actualProtocols.copy()
@@ -172,7 +195,7 @@ class ExpertSystem:
                 if index < len(self.displayedProtocols):
                     print([protocol.name for protocol in self.displayedProtocols])
                     if self.displayedProtocols[index].name in ['Амария', 'Селена', 'Аид', 'Красная Королева']:
-                        self.displayedProtocols = self.displayedProtocols[0:index] + self.displayedProtocols[index+1:]
+                        self.displayedProtocols = self.displayedProtocols[0:index] + self.displayedProtocols[index + 1:]
                         index -= 1
                 else:
                     break
@@ -249,7 +272,7 @@ class ExpertSystem:
             return ConditionWhite(condition)
 
     def changeColorForActualConditions(self):
-        if type(self.patient) is PatientsActual:
+        if isinstance(self.patient, PatientsActual):
             if self.patient.project is not None:
                 if self.patient.haveConditions is not None:
                     coloredHaveCondition = list()
@@ -264,7 +287,7 @@ class ExpertSystem:
                 self.defineClassPatient()
 
     def defineClassPatient(self):
-        if type(self.patient) is PatientsActual:
+        if isinstance(self.patient, PatientsActual):
             countGreen = 0
             countOrange = 0
             countRed = 0
@@ -285,46 +308,58 @@ class ExpertSystem:
                     countOrange += 1
                 elif typeCond is ConditionRed:
                     countRed += 1
-            if projectName == 'Энигма':
-                if countGreen == 7 and countOrange == 0 and countRed == 0:
-                    self.patient = PatientsPositive(self.patient, self.patient.project)
-                elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1 and specialCond is None:
-                    self.patient = PatientsSatisfactory(self.patient, self.patient.project)
-                elif countRed >= 2 and specialCond is not None:
-                    self.patient = PatientsNegative(self.patient, self.patient.project)
-            elif projectName == 'Сороконожка':
-                if countGreen == 5 and countOrange == 0 and countRed == 0:
-                    self.patient = PatientsPositive(self.patient, self.patient.project)
-                elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1 and specialCond is None:
-                    self.patient = PatientsSatisfactory(self.patient, self.patient.project)
-                elif countRed >= 2 and specialCond is not None:
-                    self.patient = PatientsNegative(self.patient, self.patient.project)
-            elif projectName == 'Зимний солдат':
-                if countGreen == 6 and countOrange == 0 and countRed == 0:
-                    self.patient = PatientsPositive(self.patient, self.patient.project)
-                elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1 and specialCond is None:
-                    self.patient = PatientsSatisfactory(self.patient, self.patient.project)
-                elif countRed >= 2 and specialCond is not None:
-                    self.patient = PatientsNegative(self.patient, self.patient.project)
-            elif projectName == 'Ультимо':
-                if countGreen == 4 and countOrange == 0 and countRed == 0:
-                    self.patient = PatientsPositive(self.patient, self.patient.project)
-                elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1:
-                    self.patient = PatientsSatisfactory(self.patient, self.patient.project)
-                elif countRed >= 2:
-                    self.patient = PatientsNegative(self.patient, self.patient.project)
-            elif projectName == 'Кордицепс':
-                if countGreen == 7 and countOrange == 0 and countRed == 0:
-                    self.patient = PatientsPositive(self.patient, self.patient.project)
-                elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1:
-                    self.patient = PatientsSatisfactory(self.patient, self.patient.project)
-                elif countRed >= 2:
-                    self.patient = PatientsNegative(self.patient, self.patient.project)
-            elif projectName == 'Таити':
-                if countGreen == 9 and countOrange == 0 and countRed == 0:
-                    self.patient = PatientsPositive(self.patient, self.patient.project)
-                elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1:
-                    self.patient = PatientsSatisfactory(self.patient, self.patient.project)
-                elif countRed >= 2:
-                    self.patient = PatientsNegative(self.patient, self.patient.project)
+
+            color, status, value = self.fuzzyLogic(countGreen, countOrange, countRed)
+
+            print(f"{color} - {status} - {value}")
+
+            if status == 'Negative':
+                self.patient = PatientsNegative(self.patient, self.patient.project)
+            elif status == 'Satisfactory':
+                self.patient = PatientsSatisfactory(self.patient, self.patient.project)
+            else:
+                self.patient = PatientsPositive(self.patient, self.patient.project)
+
+            # if projectName == 'Энигма':
+            #     if countGreen == 7 and countOrange == 0 and countRed == 0:
+            #         self.patient = PatientsPositive(self.patient, self.patient.project)
+            #     elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1 and specialCond is None:
+            #         self.patient = PatientsSatisfactory(self.patient, self.patient.project)
+            #     elif countRed >= 2 and specialCond is not None:
+            #         self.patient = PatientsNegative(self.patient, self.patient.project)
+            # elif projectName == 'Сороконожка':
+            #     if countGreen == 5 and countOrange == 0 and countRed == 0:
+            #         self.patient = PatientsPositive(self.patient, self.patient.project)
+            #     elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1 and specialCond is None:
+            #         self.patient = PatientsSatisfactory(self.patient, self.patient.project)
+            #     elif countRed >= 2 and specialCond is not None:
+            #         self.patient = PatientsNegative(self.patient, self.patient.project)
+            # elif projectName == 'Зимний солдат':
+            #     if countGreen == 6 and countOrange == 0 and countRed == 0:
+            #         self.patient = PatientsPositive(self.patient, self.patient.project)
+            #     elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1 and specialCond is None:
+            #         self.patient = PatientsSatisfactory(self.patient, self.patient.project)
+            #     elif countRed >= 2 and specialCond is not None:
+            #         self.patient = PatientsNegative(self.patient, self.patient.project)
+            # elif projectName == 'Ультимо':
+            #     if countGreen == 4 and countOrange == 0 and countRed == 0:
+            #         self.patient = PatientsPositive(self.patient, self.patient.project)
+            #     elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1:
+            #         self.patient = PatientsSatisfactory(self.patient, self.patient.project)
+            #     elif countRed >= 2:
+            #         self.patient = PatientsNegative(self.patient, self.patient.project)
+            # elif projectName == 'Кордицепс':
+            #     if countGreen == 7 and countOrange == 0 and countRed == 0:
+            #         self.patient = PatientsPositive(self.patient, self.patient.project)
+            #     elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1:
+            #         self.patient = PatientsSatisfactory(self.patient, self.patient.project)
+            #     elif countRed >= 2:
+            #         self.patient = PatientsNegative(self.patient, self.patient.project)
+            # elif projectName == 'Таити':
+            #     if countGreen == 9 and countOrange == 0 and countRed == 0:
+            #         self.patient = PatientsPositive(self.patient, self.patient.project)
+            #     elif countRed == 0 and countOrange >= 1 or countOrange == 0 and countRed == 1:
+            #         self.patient = PatientsSatisfactory(self.patient, self.patient.project)
+            #     elif countRed >= 2:
+            #         self.patient = PatientsNegative(self.patient, self.patient.project)
             print(f'Тип пациента изменён на {type(self.patient)}')

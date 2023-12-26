@@ -13,6 +13,7 @@ class Protocol:
             'reaction': self.reaction
         }
 
+
 class ProtocolCalled(Protocol):
     pass
 
